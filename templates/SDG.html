@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UNSDG Goals Gallery</title>
+  <link rel="stylesheet" href="m.css" />
+  <style>
+    /* Global styles */
+body {
+    background-image: url('https://img.pogo.org/image/content/2018/facial-recognition-gif-v5-o_1150.gif?auto=compress%2Cformat&crop=focalpoint&fit=crop&fp-x=0.5&fp-y=0.5&h=800&q=80&ratio=1.5&w=1200&s=4e2f6eeb1cc9940aa21f63bb62f2d161');
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    
+    color: #fff;
+  }
+  
+  /* Header */
+  header {
+    background-color: rgba(0, 0, 0, 0.4);
+    padding: 2rem 1rem;
+    text-align: center;
+  }
+  
+  h1 {
+    margin: 0;
+    font-size: 2.5rem;
+    background-color: rgba(255, 192, 203, 0.2);
+    padding: 0.5rem 1.5rem;
+    border-radius: 10px;
+    display: inline-block;
+  }
+  
+  /* Gallery section */
+  .gallery {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2rem;
+    padding: 2rem;
+  }
+  
+  /* Card styles */
+  .card {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    overflow: hidden;
+    width: 260px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    backdrop-filter: blur(8px);
+    color: #fff;
+    height: 420px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  
+  .card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+  }
+  
+  .card img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  /* Card content */
+  .info {
+    padding: 1rem;
+  }
+  
+  h2 {
+    margin: 0.5rem 0;
+    font-size: 1.25rem;
+    color: #ffe;
+  }
+  
+  /* Button style */
+  .btn {
+    display: inline-block;
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background 0.3s;
+  }
+  
+  .btn:hover {
+    background-color: rgba(255, 255, 255, 0.4);
+  }
+  
+  /* Responsive design */
+  @media (max-width: 600px) {
+    .gallery {
+      flex-direction: column;
+      align-items: center;
+    }
+  
+    .card {
+      width: 90%;
+      height: auto;
+    }
+  }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>UN Sustainable Development Goals</h1>
+  </header>
+
+  <main>
+    <section class="gallery">
+      <div class="card">
+        <img src="https://sdgs.un.org/sites/default/files/goals/E_SDG_Icons-04.jpg" alt="Goal 4: Quality Education" />
+        <div class="info">
+          <h2>Education Equality</h2>
+          <a href="https://sdgs.un.org/goals/goal4" class="btn" target="_blank">Learn More</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Sustainable_Development_Goal_09Industry.svg/1200px-Sustainable_Development_Goal_09Industry.svg.png" alt="Goal 9: Industry Innovation" />
+        <div class="info">
+          <h2>Industry Innovation</h2>
+          <a href="https://sdgs.un.org/goals/goal9" class="btn" target="_blank">Learn More</a>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

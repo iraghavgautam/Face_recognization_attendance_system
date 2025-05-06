@@ -10,6 +10,7 @@ import joblib
 
 app = Flask(__name__)
 
+
 nimgs = 10
 
 imgBackground=cv2.imread("background.png")
@@ -29,7 +30,7 @@ if not os.path.isdir('static/faces'):
     os.makedirs('static/faces')
 if f'Attendance-{datetoday}.csv' not in os.listdir('Attendance'):
     with open(f'Attendance/Attendance-{datetoday}.csv', 'w') as f:
-        f.write('Name,Roll,Time,Date')
+        f.write('Name,Roll,Time')
 
 def totalreg():
     return len(os.listdir('static/faces'))
@@ -44,15 +45,13 @@ def extract_faces(img):
 
 def identify_face(facearray):
     model = joblib.load('static/face_recognition_model.pkl')
+    # Get prediction probabilities
+    probabilities = model.predict_proba(facearray)
+    # Get the highest probability
+    confidence = np.max(probabilities) * 100
     # Get the predicted name
     name = model.predict(facearray)[0]
-    
-    # Check if the predicted name exists in the database
-    userlist = os.listdir('static/faces')
-    if name not in userlist:
-        return ["Unknown"]
-    
-    return [name]
+    return name, confidence
 
 
 def train_model():
@@ -82,21 +81,18 @@ def add_attendance(name):
     username = name.split('_')[0]
     userid = name.split('_')[1]
     current_time = datetime.now().strftime("%H:%M:%S")
-    current_date = date.today().strftime("%d-%B-%Y")
-
+    
+    # Read existing attendance
     df = pd.read_csv(f'Attendance/Attendance-{datetoday}.csv')
     
-    # Check if the user already exists in the attendance
-    if int(userid) in list(df['Roll']):
-        # Update the time for existing entry
-        df.loc[df['Roll'] == int(userid), 'Time'] = current_time
-        df.loc[df['Roll'] == int(userid), 'Date'] = current_date
-    else:
-        # Add new entry
-        new_row = pd.DataFrame({'Name': [username], 'Roll': [int(userid)], 'Time': [current_time], 'Date': [current_date]})
-        df = pd.concat([df, new_row], ignore_index=True)
+    # Create new row
+    new_row = pd.DataFrame({'Name': [username], 'Roll': [int(userid)], 'Time': [current_time]})
     
-    # Save the updated dataframe
+    # Remove existing entry if present and append new one
+    df = df[df['Roll'] != int(userid)]  # Remove old entry
+    df = pd.concat([df, new_row], ignore_index=True)  # Add new entry
+    
+    # Save back to CSV
     df.to_csv(f'Attendance/Attendance-{datetoday}.csv', index=False)
 
 def getallusers():
@@ -117,12 +113,13 @@ def getallusers():
 def home():
     names, rolls, times, l = extract_attendance()
     return render_template('home.html', names=names, rolls=rolls, times=times, l=l, totalreg=totalreg(), datetoday2=datetoday2)
-@app.route("/developer.html")
+
+@app.route('/developer.html')
 def developer():
-    return render_template("developer.html")
-@app.route("/SDG.html")
+    return render_template('developer.html')
+@app.route('/SDG.html')
 def SDG():
-    return render_template("SDG.html")
+    return render_template('SDG.html')
 
 @app.route('/start', methods=['GET'])
 def start():
@@ -132,7 +129,7 @@ def start():
         return render_template('home.html', names=names, rolls=rolls, times=times, l=l, totalreg=totalreg(), datetoday2=datetoday2, mess='There is no trained model in the static folder. Please add a new face to continue.')
 
     ret = True
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
     
     while ret:
         ret, frame = cap.read()
@@ -141,13 +138,13 @@ def start():
             cv2.rectangle(frame, (x, y), (x+w, y+h), (86, 32, 251), 1)
             cv2.rectangle(frame, (x, y), (x+w, y-40), (86, 32, 251), -1)
             face = cv2.resize(frame[y:y+h, x:x+w], (50, 50))
-            identified_person = identify_face(face.reshape(1, -1))[0]
-            if identified_person != "Unknown":
-                add_attendance(identified_person)
+            identified_person, confidence = identify_face(face.reshape(1, -1))
+            add_attendance(identified_person)
             cv2.rectangle(frame, (x,y), (x+w, y+h), (0,0,255), 1)
             cv2.rectangle(frame,(x,y),(x+w,y+h),(50,50,255),2)
             cv2.rectangle(frame,(x,y-40),(x+w,y),(50,50,255),-1)
-            cv2.putText(frame, f'{identified_person}', (x,y-15), cv2.FONT_HERSHEY_COMPLEX, 1, (255,255,255), 1)
+            # Display name and confidence percentage
+            cv2.putText(frame, f'{identified_person} ({confidence:.2f}%)', (x,y-15), cv2.FONT_HERSHEY_COMPLEX, 1, (255,255,255), 1)
             cv2.rectangle(frame, (x,y), (x+w, y+h), (50,50,255), 1)
         imgBackground[162:162 + 480, 55:55 + 640] = frame
         cv2.imshow('Attendance', imgBackground)
@@ -163,6 +160,7 @@ def start():
 @app.route('/add', methods=['GET', 'POST'])
 def add():
     newusername = request.form['newusername']
+    
     newuserid = request.form['newuserid']
     userimagefolder = 'static/faces/'+newusername+'_'+str(newuserid)
     if not os.path.isdir(userimagefolder):
